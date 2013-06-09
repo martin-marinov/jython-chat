@@ -1,5 +1,5 @@
 import SocketServer
-from mixins import ThreadPoolMixIn
+from mixins import ThreadPoolMixIn, OtherPoolMixIn
 import re
 import threading
 import os
@@ -32,6 +32,9 @@ class MyThreadedServer(ThreadPoolMixIn, SocketServer.TCPServer):
 class MyForkedServer(SocketServer.ForkingTCPServer):
     max_children = 40
 
+class MyOtherServer(OtherPoolMixIn, SocketServer.TCPServer):
+    numThreads = 2
+
 
 # class COMMANDS:
 
@@ -43,6 +46,6 @@ class MyForkedServer(SocketServer.ForkingTCPServer):
 
 if __name__ == '__main__':
     address = ('localhost', 53617)  # let the kernel give us a port
-    server = MyThreadedServer(address, MyRequestHandler)
+    server = MyOtherServer(address, MyRequestHandler)
 
     server.serve_forever()

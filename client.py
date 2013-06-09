@@ -5,7 +5,7 @@ import timeit
 import threading
 import time
 
-errors = 0
+# errors = 0
 
 def make_requests(times):
     for i in xrange(times):
@@ -25,9 +25,9 @@ def make_requests(times):
             # print "Received : %s" % received
             # microseconds = (end_time - start_time).microseconds
             # print "Thread: %s ; RequestNo: %d ;Time %s" % (threading.currentThread().getName(), i, repr(microseconds))
-        except:
-            global errors
-            errors += 1
+        # except:
+        #     global errors
+        #     errors += 1
         finally:
             s.close()
 
