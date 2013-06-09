@@ -5,25 +5,36 @@ import threading
 import os
 
 
-class MyRequestHandler(SocketServer.StreamRequestHandler):
+class MyRequestHandler(SocketServer.BaseRequestHandler):
     users = {}
 
     def handle(self):
         # print threading.currentThread().getName()
         # print "Pid: %d" % os.getpid()
-        command = self.rfile.readline().strip()
-        user = re.search('user (\w+)', command)
-        response = None
-        if user:
-            user = user.group(1)
-            if user and user in self.users:
-                response = "100 err %s already taken!" % user
-            else:
-                self.users[user] = self.client_address
-                response = "200 ok %s successfully registerred" % user
+
+        command = self.request.recv(1024).strip()
+        print command
         #import pdb;pdb.set_trace()
-        self.wfile.write(response)
-        return
+        match = re.search('user (?P<user>\w+)', command)
+        if match:
+            user = match.group('user')
+            if user and user in self.users:
+                response = "100 err %s already taken!\r\n" % user
+            else:
+                self.users[user] = self.request
+                response = "200 ok %s successfully registerred" % user
+            #import pdb;pdb.set_trace()
+            self.request.send(response)
+            return
+        match  = re.search('send_to (?P<user>\w+) (?P<message>.*)', command)
+        if match:
+            user, message = match.groups()
+            if user in self.users:
+                self.users[user].send(message)
+                self.request.send("200 ok message to %s sent successfully.\r\n" % user)
+            else:
+                self.request.send("100 err %s does not exists!\r\n" % user)
+            return
 
 
 class MyThreadedServer(ThreadPoolMixIn, SocketServer.TCPServer):

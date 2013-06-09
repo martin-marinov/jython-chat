@@ -54,6 +54,7 @@ class HandleTask(Callable):
 
     def call(self):
         self.target()
+        return self
 
 
 class OtherPoolMixIn(ThreadingMixIn):
